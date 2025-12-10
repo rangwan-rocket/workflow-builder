@@ -414,26 +414,71 @@ export default {
     const showEditAction = computed(() => props.content?.showEditAction !== false);
     const showDeleteAction = computed(() => props.content?.showDeleteAction !== false);
 
+    // Default data structures for each node type
+    const getDefaultNodeData = (type) => {
+      const defaults = {
+        condition: {
+          label: 'New Condition',
+          groups_operator: 'AND',
+          groups: [],
+        },
+        message: {
+          label: 'New Message',
+          channel: null,
+          template_id: null,
+          subject: '',
+          content: '',
+          json_content: null,
+        },
+        wait: {
+          label: 'New Wait',
+          duration: 1,
+          unit: 'days',
+        },
+        api: {
+          label: 'New API Call',
+          method: 'POST',
+          url: '',
+          headers: {},
+          body: '',
+          timeout_seconds: 30,
+          retry_count: 2,
+        },
+      };
+      return defaults[type] || { label: `New ${type}` };
+    };
+
+    // Strip internal fields from node data for clean event emission
+    const getCleanNodeData = (data) => {
+      if (!data) return {};
+      const { color, showEditAction, showDeleteAction, onEdit, onDelete, ...cleanData } = data;
+      return cleanData;
+    };
+
+    // Build clean node object for event emission
+    const buildNodeEvent = (node) => {
+      if (!node) return null;
+      return {
+        id: node.id,
+        type: node.type,
+        position: { ...node.position },
+        data: getCleanNodeData(node.data),
+      };
+    };
+
     // Node action handlers
     const handleNodeEdit = (nodeId) => {
       const node = nodes.value.find(n => n.id === nodeId);
       if (!node) return;
       
+      const nodeEvent = buildNodeEvent(node);
+      
       setSelectedNodeId(nodeId);
-      setSelectedNodeData({
-        id: node.id,
-        type: node.type,
-        position: node.position,
-        data: node.data,
-      });
+      setSelectedNodeData(nodeEvent);
       
       emit('trigger-event', {
         name: 'node-edit',
-        event: {
-          node_id: nodeId,
-          node_type: node.type,
-          node_data: node.data || {},
-        },
+        event: nodeEvent,
       });
     };
     
@@ -624,14 +669,64 @@ export default {
       return { success: true };
     };
 
+    // Update node config action
+    const updateNodeConfig = (nodeId, config) => {
+      if (!nodeId || !config) {
+        return { success: false, error: 'nodeId and config are required' };
+      }
+
+      const nodeIndex = nodes.value.findIndex(n => n.id === nodeId);
+      if (nodeIndex === -1) {
+        return { success: false, error: 'Node not found' };
+      }
+
+      // Update the node's data while preserving internal fields
+      const existingNode = nodes.value[nodeIndex];
+      const updatedNode = {
+        ...existingNode,
+        data: {
+          ...config,
+          color: getNodeColor(existingNode.type),
+          showEditAction: showEditAction.value,
+          showDeleteAction: showDeleteAction.value,
+          onEdit: handleNodeEdit,
+          onDelete: handleNodeDelete,
+        },
+      };
+
+      // Update nodes array
+      nodes.value = [
+        ...nodes.value.slice(0, nodeIndex),
+        updatedNode,
+        ...nodes.value.slice(nodeIndex + 1),
+      ];
+
+      // Update selected node data if this is the selected node
+      if (selectedNodeId.value === nodeId) {
+        setSelectedNodeData(buildNodeEvent(updatedNode));
+      }
+
+      setIsDirty(true);
+      updateVariables();
+
+      emit('trigger-event', {
+        name: 'workflow-changed',
+        event: { is_dirty: true },
+      });
+
+      return { success: true, node: buildNodeEvent(updatedNode) };
+    };
+
     // Add node helper function
     const addNode = (type, x, y) => {
+      const defaultData = getDefaultNodeData(type);
+      
       const newNode = {
         id: crypto.randomUUID(),
         type,
         position: { x, y },
         data: {
-          label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+          ...defaultData,
           color: getNodeColor(type),
           showEditAction: showEditAction.value,
           showDeleteAction: showDeleteAction.value,
@@ -709,21 +804,14 @@ export default {
       const node = event.node;
       if (!node) return;
 
+      const nodeEvent = buildNodeEvent(node);
+
       setSelectedNodeId(node.id);
-      setSelectedNodeData({
-        id: node.id,
-        type: node.type,
-        position: node.position,
-        data: node.data,
-      });
+      setSelectedNodeData(nodeEvent);
 
       emit('trigger-event', {
         name: 'node-selected',
-        event: {
-          node_id: node.id,
-          node_type: node.type,
-          node_data: node.data || {},
-        },
+        event: nodeEvent,
       });
     };
 
@@ -926,6 +1014,7 @@ export default {
       save,
       validate,
       clear,
+      updateNodeConfig,
     });
 
     /* wwEditor:start */

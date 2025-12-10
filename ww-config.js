@@ -36,6 +36,34 @@ export default {
       },
       /* wwEditor:end */
     },
+    {
+      name: 'updateNodeConfig',
+      label: { en: 'Update Node Config' },
+      action: 'updateNodeConfig',
+      args: [
+        {
+          name: 'nodeId',
+          type: 'Text',
+          label: { en: 'Node ID' },
+          /* wwEditor:start */
+          bindable: true,
+          /* wwEditor:end */
+        },
+        {
+          name: 'config',
+          type: 'Object',
+          label: { en: 'Config Data' },
+          /* wwEditor:start */
+          bindable: true,
+          /* wwEditor:end */
+        },
+      ],
+      /* wwEditor:start */
+      actionDescription: {
+        en: 'Updates the configuration of a specific node. Pass nodeId and config object.',
+      },
+      /* wwEditor:end */
+    },
   ],
   triggerEvents: [
     {
@@ -50,10 +78,10 @@ export default {
     {
       name: 'node-selected',
       label: { en: 'On Node Selected' },
-      event: { node_id: '', node_type: '', node_data: {} },
+      event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
       default: true,
       /* wwEditor:start */
-      getTestEvent: '() => ({ node_id: "test-id", node_type: "message", node_data: {label: "Test"} })',
+      getTestEvent: '() => ({ id: "node-123", type: "message", position: { x: 100, y: 100 }, data: { label: "Test Message", channel: null, template_id: null, subject: "", content: "", json_content: null } })',
       /* wwEditor:end */
     },
     {
@@ -77,10 +105,10 @@ export default {
     {
       name: 'node-edit',
       label: { en: 'On Node Edit' },
-      event: { node_id: '', node_type: '', node_data: {} },
+      event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
       default: true,
       /* wwEditor:start */
-      getTestEvent: '() => ({ node_id: "test-id", node_type: "message", node_data: {label: "Test"} })',
+      getTestEvent: '() => ({ id: "node-123", type: "condition", position: { x: 100, y: 100 }, data: { label: "Check VIP", groups_operator: "AND", groups: [] } })',
       /* wwEditor:end */
     },
     {
