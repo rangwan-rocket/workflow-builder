@@ -114,10 +114,10 @@ export default {
     {
       name: 'node-deleted',
       label: { en: 'On Node Deleted' },
-      event: { node_id: '', node_type: '' },
+      event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
       default: true,
       /* wwEditor:start */
-      getTestEvent: '() => ({ node_id: "test-id", node_type: "message" })',
+      getTestEvent: '() => ({ id: "node-123", type: "message", position: { x: 100, y: 100 }, data: { label: "Deleted Node" } })',
       /* wwEditor:end */
     },
   ],

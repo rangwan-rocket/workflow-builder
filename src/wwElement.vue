@@ -488,6 +488,9 @@ export default {
       const node = nodes.value.find(n => n.id === nodeId);
       if (!node) return;
       
+      // Build event before removing node
+      const nodeEvent = buildNodeEvent(node);
+      
       // Remove the node
       nodes.value = nodes.value.filter(n => n.id !== nodeId);
       
@@ -507,10 +510,7 @@ export default {
       
       emit('trigger-event', {
         name: 'node-deleted',
-        event: {
-          node_id: nodeId,
-          node_type: node.type,
-        },
+        event: nodeEvent,
       });
       
       emit('trigger-event', {
