@@ -74,6 +74,24 @@ export default {
       getTestEvent: '() => ({ errors: ["No nodes in workflow"] })',
       /* wwEditor:end */
     },
+    {
+      name: 'node-edit',
+      label: { en: 'On Node Edit' },
+      event: { node_id: '', node_type: '', node_data: {} },
+      default: true,
+      /* wwEditor:start */
+      getTestEvent: '() => ({ node_id: "test-id", node_type: "message", node_data: {label: "Test"} })',
+      /* wwEditor:end */
+    },
+    {
+      name: 'node-deleted',
+      label: { en: 'On Node Deleted' },
+      event: { node_id: '', node_type: '' },
+      default: true,
+      /* wwEditor:start */
+      getTestEvent: '() => ({ node_id: "test-id", node_type: "message" })',
+      /* wwEditor:end */
+    },
   ],
   properties: {
     // Data Binding
@@ -217,6 +235,36 @@ export default {
         tooltip: 'Enable/disable editing mode',
       },
       propertyHelp: 'Disable editing for view-only mode in analytics pages',
+      /* wwEditor:end */
+    },
+    showEditAction: {
+      label: { en: 'Show Edit Action' },
+      type: 'OnOff',
+      section: 'settings',
+      defaultValue: true,
+      bindable: true,
+      hidden: content => content?.readOnly,
+      /* wwEditor:start */
+      bindingValidation: {
+        type: 'boolean',
+        tooltip: 'Show edit button on nodes',
+      },
+      propertyHelp: 'Show edit button when hovering over nodes. Triggers "On Node Edit" event.',
+      /* wwEditor:end */
+    },
+    showDeleteAction: {
+      label: { en: 'Show Delete Action' },
+      type: 'OnOff',
+      section: 'settings',
+      defaultValue: true,
+      bindable: true,
+      hidden: content => content?.readOnly,
+      /* wwEditor:start */
+      bindingValidation: {
+        type: 'boolean',
+        tooltip: 'Show delete button on nodes',
+      },
+      propertyHelp: 'Show delete button when hovering over nodes. Triggers "On Node Deleted" event.',
       /* wwEditor:end */
     },
 

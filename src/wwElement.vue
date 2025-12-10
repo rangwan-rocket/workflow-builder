@@ -68,11 +68,80 @@ import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
 import '@vue-flow/controls/dist/style.css';
 
+// SVG Icons for node actions
+const EditIcon = () => h('svg', { 
+  width: '14', 
+  height: '14', 
+  viewBox: '0 0 24 24', 
+  fill: 'none', 
+  stroke: 'currentColor', 
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('path', { d: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' }),
+  h('path', { d: 'M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' })
+]);
+
+const DeleteIcon = () => h('svg', { 
+  width: '14', 
+  height: '14', 
+  viewBox: '0 0 24 24', 
+  fill: 'none', 
+  stroke: 'currentColor', 
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('polyline', { points: '3 6 5 6 21 6' }),
+  h('path', { d: 'M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2' }),
+  h('line', { x1: '10', y1: '11', x2: '10', y2: '17' }),
+  h('line', { x1: '14', y1: '11', x2: '14', y2: '17' })
+]);
+
+// Helper to create node action toolbar
+const createNodeActions = (props, showEdit, showDelete) => {
+  const actions = [];
+  
+  if (showEdit) {
+    actions.push(
+      h('button', {
+        class: 'node-action-btn node-action-edit',
+        onClick: (e) => {
+          e.stopPropagation();
+          props.data?.onEdit?.(props.id);
+        },
+        title: 'Edit node'
+      }, [h(EditIcon)])
+    );
+  }
+  
+  if (showDelete) {
+    actions.push(
+      h('button', {
+        class: 'node-action-btn node-action-delete',
+        onClick: (e) => {
+          e.stopPropagation();
+          props.data?.onDelete?.(props.id);
+        },
+        title: 'Delete node'
+      }, [h(DeleteIcon)])
+    );
+  }
+  
+  if (actions.length === 0) return null;
+  
+  return h('div', { class: 'node-actions-toolbar' }, actions);
+};
+
 // Custom Node Components
 const ConditionNode = {
   name: 'ConditionNode',
   props: ['id', 'data', 'selected'],
   setup(props) {
+    const showEdit = computed(() => props.data?.showEditAction !== false);
+    const showDelete = computed(() => props.data?.showDeleteAction !== false);
+    
     return () =>
       h(
         'div',
@@ -81,6 +150,7 @@ const ConditionNode = {
           style: { '--node-color': props.data?.color || '#3B82F6' },
         },
         [
+          createNodeActions(props, showEdit.value, showDelete.value),
           h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
           h('div', { class: 'node-content' }, [
             h('span', { class: 'node-icon' }, '🔀'),
@@ -107,6 +177,9 @@ const MessageNode = {
   name: 'MessageNode',
   props: ['id', 'data', 'selected'],
   setup(props) {
+    const showEdit = computed(() => props.data?.showEditAction !== false);
+    const showDelete = computed(() => props.data?.showDeleteAction !== false);
+    
     return () =>
       h(
         'div',
@@ -115,6 +188,7 @@ const MessageNode = {
           style: { '--node-color': props.data?.color || '#10B981' },
         },
         [
+          createNodeActions(props, showEdit.value, showDelete.value),
           h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
           h('div', { class: 'node-content' }, [
             h('span', { class: 'node-icon' }, '✉️'),
@@ -130,6 +204,9 @@ const WaitNode = {
   name: 'WaitNode',
   props: ['id', 'data', 'selected'],
   setup(props) {
+    const showEdit = computed(() => props.data?.showEditAction !== false);
+    const showDelete = computed(() => props.data?.showDeleteAction !== false);
+    
     return () =>
       h(
         'div',
@@ -138,6 +215,7 @@ const WaitNode = {
           style: { '--node-color': props.data?.color || '#F59E0B' },
         },
         [
+          createNodeActions(props, showEdit.value, showDelete.value),
           h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
           h('div', { class: 'node-content' }, [
             h('span', { class: 'node-icon' }, '⏱️'),
@@ -153,6 +231,9 @@ const ApiNode = {
   name: 'ApiNode',
   props: ['id', 'data', 'selected'],
   setup(props) {
+    const showEdit = computed(() => props.data?.showEditAction !== false);
+    const showDelete = computed(() => props.data?.showDeleteAction !== false);
+    
     return () =>
       h(
         'div',
@@ -161,6 +242,7 @@ const ApiNode = {
           style: { '--node-color': props.data?.color || '#8B5CF6' },
         },
         [
+          createNodeActions(props, showEdit.value, showDelete.value),
           h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
           h('div', { class: 'node-content' }, [
             h('span', { class: 'node-icon' }, '🔌'),
@@ -176,6 +258,9 @@ const TestNode = {
   name: 'TestNode',
   props: ['id', 'data', 'selected'],
   setup(props) {
+    const showEdit = computed(() => props.data?.showEditAction !== false);
+    const showDelete = computed(() => props.data?.showDeleteAction !== false);
+    
     return () =>
       h(
         'div',
@@ -184,6 +269,7 @@ const TestNode = {
           style: { '--node-color': '#EC4899', background: '#FDF2F8', border: '3px dashed #EC4899' },
         },
         [
+          createNodeActions(props, showEdit.value, showDelete.value),
           h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
           h('div', { class: 'node-content' }, [
             h('span', { class: 'node-icon' }, '🧪'),
@@ -324,6 +410,70 @@ export default {
       return colors[type] || '#6B7280';
     };
 
+    // Node action visibility
+    const showEditAction = computed(() => props.content?.showEditAction !== false);
+    const showDeleteAction = computed(() => props.content?.showDeleteAction !== false);
+
+    // Node action handlers
+    const handleNodeEdit = (nodeId) => {
+      const node = nodes.value.find(n => n.id === nodeId);
+      if (!node) return;
+      
+      setSelectedNodeId(nodeId);
+      setSelectedNodeData({
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: node.data,
+      });
+      
+      emit('trigger-event', {
+        name: 'node-edit',
+        event: {
+          node_id: nodeId,
+          node_type: node.type,
+          node_data: node.data || {},
+        },
+      });
+    };
+    
+    const handleNodeDelete = (nodeId) => {
+      if (isReadOnly.value) return;
+      
+      const node = nodes.value.find(n => n.id === nodeId);
+      if (!node) return;
+      
+      // Remove the node
+      nodes.value = nodes.value.filter(n => n.id !== nodeId);
+      
+      // Remove connected edges
+      edges.value = edges.value.filter(
+        e => e.source !== nodeId && e.target !== nodeId
+      );
+      
+      // Clear selection if deleted node was selected
+      if (selectedNodeId.value === nodeId) {
+        setSelectedNodeId('');
+        setSelectedNodeData({});
+      }
+      
+      setIsDirty(true);
+      updateVariables();
+      
+      emit('trigger-event', {
+        name: 'node-deleted',
+        event: {
+          node_id: nodeId,
+          node_type: node.type,
+        },
+      });
+      
+      emit('trigger-event', {
+        name: 'workflow-changed',
+        event: { is_dirty: true },
+      });
+    };
+
     // Data format conversion: Database → Vue Flow
     const dbToVueFlow = (dbNodes, dbEdges) => {
       const vfNodes = (dbNodes || []).map((node) => ({
@@ -336,6 +486,10 @@ export default {
         data: {
           ...(node?.node_config || {}),
           color: getNodeColor(node?.node_type || 'message'),
+          showEditAction: showEditAction.value,
+          showDeleteAction: showDeleteAction.value,
+          onEdit: handleNodeEdit,
+          onDelete: handleNodeDelete,
         },
       }));
 
@@ -479,6 +633,10 @@ export default {
         data: {
           label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
           color: getNodeColor(type),
+          showEditAction: showEditAction.value,
+          showDeleteAction: showDeleteAction.value,
+          onEdit: handleNodeEdit,
+          onDelete: handleNodeDelete,
         },
       };
 
@@ -737,13 +895,15 @@ export default {
       }
     );
 
-    // Watch for color changes to update existing nodes
+    // Watch for color and action changes to update existing nodes
     watch(
       () => [
         props.content?.conditionNodeColor,
         props.content?.messageNodeColor,
         props.content?.waitNodeColor,
         props.content?.apiNodeColor,
+        props.content?.showEditAction,
+        props.content?.showDeleteAction,
       ],
       () => {
         nodes.value = nodes.value.map((node) => ({
@@ -751,6 +911,10 @@ export default {
           data: {
             ...node.data,
             color: getNodeColor(node.type),
+            showEditAction: showEditAction.value,
+            showDeleteAction: showDeleteAction.value,
+            onEdit: handleNodeEdit,
+            onDelete: handleNodeDelete,
           },
         }));
       },
@@ -908,6 +1072,7 @@ export default {
   box-shadow: var(--p-shadow-200);
   min-width: 140px;
   transition: all 0.2s ease;
+  position: relative;
 
   &.selected {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-color) 30%, transparent),
@@ -917,6 +1082,65 @@ export default {
   &:hover {
     box-shadow: var(--p-shadow-300);
   }
+  
+  // Show action toolbar on hover
+  &:hover .node-actions-toolbar {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+}
+
+// Node actions toolbar (appears on hover)
+:deep(.node-actions-toolbar) {
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  display: flex;
+  gap: 4px;
+  background: var(--p-color-bg-surface);
+  border: 1px solid var(--p-color-border);
+  border-radius: var(--p-border-radius-200);
+  padding: 4px;
+  box-shadow: var(--p-shadow-300);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 10;
+}
+
+:deep(.node-action-btn) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--p-border-radius-100);
+  background: transparent;
+  color: var(--p-color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--p-color-bg-surface-hover);
+    color: var(--p-color-text);
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+:deep(.node-action-edit:hover) {
+  background: color-mix(in srgb, #3B82F6 15%, transparent);
+  color: #3B82F6;
+}
+
+:deep(.node-action-delete:hover) {
+  background: color-mix(in srgb, #EF4444 15%, transparent);
+  color: #EF4444;
 }
 
 :deep(.node-content) {
