@@ -1,0 +1,17 @@
+{
+  "name": "workflow-builder",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "weweb build",
+    "serve": "weweb serve"
+  },
+  "dependencies": {
+    "@vue-flow/background": "^1.3.2",
+    "@vue-flow/controls": "^1.1.2",
+    "@vue-flow/core": "^1.41.3",
+    "polaris-weweb-styles": "^1.0.2"
+  },
+  "devDependencies": {
+    "@weweb/cli": "latest"
+  }
+}
