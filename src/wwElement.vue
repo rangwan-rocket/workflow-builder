@@ -15,8 +15,10 @@
           draggable="true"
           @dragstart="onDragStart($event, nodeType.type)"
         >
-          <span class="node-label">{{ nodeType.label }}</span>
-          <span class="node-icon">{{ nodeType.icon }}</span>
+          <div class="palette-node-content">
+            <span class="palette-node-title">{{ nodeType.label }}</span>
+            <span class="palette-node-desc">{{ nodeType.description }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -35,6 +37,7 @@
         v-model:nodes="nodes"
         v-model:edges="edges"
         :node-types="customNodeTypes"
+        :default-edge-options="defaultEdgeOptions"
         :nodes-draggable="!isReadOnly"
         :nodes-connectable="!isReadOnly"
         :edges-updatable="!isReadOnly"
@@ -391,14 +394,21 @@ export default {
       test: markRaw(TestNode),
     };
 
-    // Node palette configuration - Shopify Flow style
+    // Default edge options for visible edges
+    const defaultEdgeOptions = {
+      type: 'smoothstep',
+      style: { stroke: '#8C9196', strokeWidth: 2 },
+      animated: false,
+    };
+
+    // Node palette configuration - Shopify Flow style with descriptions
     const nodeTypes = [
-      { type: 'trigger', label: 'Trigger', icon: '🎯' },
-      { type: 'condition', label: 'Condition', icon: '🔀' },
-      { type: 'action', label: 'Action', icon: '⚡' },
-      { type: 'message', label: 'Message', icon: '✉️' },
-      { type: 'wait', label: 'Wait', icon: '⏱️' },
-      { type: 'api', label: 'API Call', icon: '🔌' },
+      { type: 'trigger', label: 'Trigger', description: 'Start workflow when event occurs' },
+      { type: 'condition', label: 'Condition', description: 'Branch based on conditions' },
+      { type: 'action', label: 'Action', description: 'Perform an action or operation' },
+      { type: 'message', label: 'Message', description: 'Send message to customer' },
+      { type: 'wait', label: 'Wait', description: 'Wait for a set amount of time' },
+      { type: 'api', label: 'API Call', description: 'Send HTTP request to service' },
     ];
 
     // Exposed Variables
@@ -1139,6 +1149,7 @@ export default {
       edges,
       nodeTypes,
       customNodeTypes,
+      defaultEdgeOptions,
       isReadOnly,
       rootStyle,
       sidebarStyle,
@@ -1178,57 +1189,78 @@ export default {
   background: var(--p-color-bg-surface-secondary);
 }
 
-// Sidebar - using Polaris card subdued
+// Sidebar - Shopify Flow style
 .sidebar {
-  @include polaris-card-subdued;
   grid-column: 1;
-  padding: var(--p-space-300); // 10px equivalent
-  border-radius: 0;
-  border-right: var(--p-border-width-025) solid var(--p-color-border);
+  padding: 0;
+  background: var(--p-color-bg-surface);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  border-right: var(--p-border-width-025) solid var(--p-color-border);
+  width: 220px;
 }
 
-// Node palette layout - using Polaris block stack
+// Node palette layout
 .node-palette {
-  @include polaris-block-stack;
-  gap: var(--p-space-200);
+  display: flex;
+  flex-direction: column;
 }
 
-// Palette nodes - Shopify Flow style (custom, can't use polaris-button)
+// Palette nodes - Shopify Flow action list style (like image 2)
 .palette-node {
-  @include polaris-card;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--p-space-300);
-  padding: var(--p-space-300) var(--p-space-400);
+  align-items: stretch;
+  padding: 0;
+  background: var(--p-color-bg-surface);
+  border: none;
+  border-bottom: var(--p-border-width-025) solid var(--p-color-border);
   cursor: grab;
-  transition: all 0.15s ease;
-  min-width: 180px;
+  transition: background 0.15s ease;
+
+  // Left color accent bar
+  &::before {
+    content: '';
+    width: 4px;
+    background: var(--node-color);
+    flex-shrink: 0;
+  }
 
   &:hover {
     background: var(--p-color-bg-surface-hover);
-    box-shadow: var(--p-shadow-100);
   }
 
   &:active {
     cursor: grabbing;
     background: var(--p-color-bg-surface-active);
   }
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
-.node-label {
-  @include polaris-text-body;
+.palette-node-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
   flex: 1;
-  font-weight: var(--p-font-weight-semibold);
-  color: var(--p-color-text);
+  min-width: 0;
 }
 
-.node-icon {
-  font-size: 16px;
-  opacity: 0.7;
+.palette-node-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p-color-text);
+  line-height: 1.3;
+}
+
+.palette-node-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--p-color-text-secondary);
+  line-height: 1.4;
 }
 
 // Canvas container
@@ -1419,17 +1451,25 @@ export default {
   }
 }
 
-// Edge styles - Shopify Flow style (dashed gray)
+// Edge styles - visible gray lines
 :deep(.vue-flow__edge-path) {
-  stroke: var(--p-color-border-secondary);
-  stroke-width: 2;
-  stroke-dasharray: 5 5;
+  stroke: #8C9196 !important;
+  stroke-width: 2 !important;
 }
 
 :deep(.vue-flow__edge.selected .vue-flow__edge-path) {
-  stroke: var(--p-color-border-interactive);
-  stroke-width: 2;
-  stroke-dasharray: none;
+  stroke: #2C6ECB !important;
+  stroke-width: 2 !important;
+}
+
+// Edge labels
+:deep(.vue-flow__edge-text) {
+  font-size: 11px;
+  fill: #6D7175;
+}
+
+:deep(.vue-flow__edge-textbg) {
+  fill: #F6F6F7;
 }
 
 // Controls styling - using Polaris card style
