@@ -390,20 +390,20 @@ export default {
       test: markRaw(TestNode),
     };
 
-    // Default edge options - light, curved bezier with dotted line and arrow
+    // Default edge options - very light, smooth bezier curve like Shopify Flow
     const defaultEdgeOptions = {
-      type: 'default', // bezier curve
+      type: 'default', // bezier curve (smoothest)
       animated: true,
       style: { 
-        stroke: '#B5B5B5', 
-        strokeWidth: 1.5,
-        strokeDasharray: '4 4',
+        stroke: '#CCCCCC', 
+        strokeWidth: 1,
+        strokeDasharray: '4 3',
       },
       markerEnd: {
         type: 'arrowclosed',
-        color: '#B5B5B5',
-        width: 16,
-        height: 16,
+        color: '#CCCCCC',
+        width: 12,
+        height: 12,
       },
     };
 
@@ -1467,23 +1467,23 @@ export default {
   right: -6px;
 }
 
-// Edge styles - light, curved bezier with dotted line (like Shopify Flow)
+// Edge styles - very light, smooth bezier curve (like Shopify Flow)
 :deep(.vue-flow__edge-path) {
-  stroke: #B5B5B5 !important;
-  stroke-width: 1.5 !important;
-  stroke-dasharray: 4 4 !important;
+  stroke: #C4C4C4 !important;
+  stroke-width: 1 !important;
+  stroke-dasharray: 4 3 !important;
   stroke-linecap: round !important;
   fill: none !important;
 }
 
-// Animated flow effect (subtle)
+// Animated flow effect (very subtle)
 :deep(.vue-flow__edge.animated .vue-flow__edge-path) {
-  animation: flow-animation 2s linear infinite;
+  animation: flow-animation 2.5s linear infinite;
 }
 
 @keyframes flow-animation {
   from {
-    stroke-dashoffset: 16;
+    stroke-dashoffset: 14;
   }
   to {
     stroke-dashoffset: 0;
@@ -1495,9 +1495,9 @@ export default {
   stroke-width: 1.5 !important;
 }
 
-// Arrow marker styling - lighter
+// Arrow marker styling - very light
 :deep(.vue-flow__arrowhead) {
-  fill: #B5B5B5;
+  fill: #C4C4C4;
 }
 
 :deep(.vue-flow__edge.selected .vue-flow__arrowhead) {
@@ -1506,8 +1506,8 @@ export default {
 
 :deep(.react-flow__arrowhead polyline),
 :deep(.vue-flow__arrowhead polyline) {
-  stroke: #B5B5B5;
-  fill: #B5B5B5;
+  stroke: #C4C4C4;
+  fill: #C4C4C4;
 }
 
 // Edge labels
