@@ -15,10 +15,14 @@
           draggable="true"
           @dragstart="onDragStart($event, nodeType.type)"
         >
+          <div class="palette-node-icon" :style="{ background: getNodeColor(nodeType.type) }">
+            {{ nodeType.icon }}
+          </div>
           <div class="palette-node-content">
             <span class="palette-node-title">{{ nodeType.label }}</span>
             <span class="palette-node-desc">{{ nodeType.description }}</span>
           </div>
+          <div class="palette-node-chevron">›</div>
         </div>
       </div>
     </div>
@@ -403,14 +407,14 @@ export default {
       },
     };
 
-    // Node palette configuration - Shopify Flow style with descriptions
+    // Node palette configuration - Shopify Flow style with icons and descriptions
     const nodeTypes = [
-      { type: 'trigger', label: 'Trigger', description: 'Start workflow when event occurs' },
-      { type: 'condition', label: 'Condition', description: 'Branch based on conditions' },
-      { type: 'action', label: 'Action', description: 'Perform an action or operation' },
-      { type: 'message', label: 'Message', description: 'Send message to customer' },
-      { type: 'wait', label: 'Wait', description: 'Wait for a set amount of time' },
-      { type: 'api', label: 'API Call', description: 'Send HTTP request to service' },
+      { type: 'trigger', label: 'Trigger', icon: '🎯', description: 'Start workflow when event occurs' },
+      { type: 'condition', label: 'Condition', icon: '🔀', description: 'Branch based on conditions' },
+      { type: 'action', label: 'Action', icon: '⚡', description: 'Perform an action or operation' },
+      { type: 'message', label: 'Message', icon: '✉️', description: 'Send message to customer' },
+      { type: 'wait', label: 'Wait', icon: '⏱️', description: 'Wait for a set amount of time' },
+      { type: 'api', label: 'API Call', icon: '🔌', description: 'Send HTTP request to service' },
     ];
 
     // Exposed Variables
@@ -1195,12 +1199,12 @@ export default {
 .sidebar {
   grid-column: 1;
   padding: 0;
-  background: var(--p-color-bg-surface);
+  background: #FFFFFF;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  border-right: var(--p-border-width-025) solid var(--p-color-border);
-  width: 220px;
+  border-right: 1px solid #E1E3E5;
+  width: 280px;
 }
 
 // Node palette layout
@@ -1209,32 +1213,25 @@ export default {
   flex-direction: column;
 }
 
-// Palette nodes - Shopify Flow action list style (like image 2)
+// Palette nodes - Shopify Flow action list style
 .palette-node {
   display: flex;
-  align-items: stretch;
-  padding: 0;
-  background: var(--p-color-bg-surface);
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #FFFFFF;
   border: none;
-  border-bottom: var(--p-border-width-025) solid var(--p-color-border);
+  border-bottom: 1px solid #F1F1F1;
   cursor: grab;
   transition: background 0.15s ease;
 
-  // Left color accent bar
-  &::before {
-    content: '';
-    width: 4px;
-    background: var(--node-color);
-    flex-shrink: 0;
-  }
-
   &:hover {
-    background: var(--p-color-bg-surface-hover);
+    background: #F6F6F7;
   }
 
   &:active {
     cursor: grabbing;
-    background: var(--p-color-bg-surface-active);
+    background: #EDEEEF;
   }
 
   &:last-child {
@@ -1242,11 +1239,22 @@ export default {
   }
 }
 
+// Icon box on the left
+.palette-node-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
 .palette-node-content {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 12px 16px;
   flex: 1;
   min-width: 0;
 }
@@ -1254,15 +1262,23 @@ export default {
 .palette-node-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--p-color-text);
+  color: #202223;
   line-height: 1.3;
 }
 
 .palette-node-desc {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
-  color: var(--p-color-text-secondary);
+  color: #6D7175;
   line-height: 1.4;
+}
+
+// Chevron on the right
+.palette-node-chevron {
+  font-size: 20px;
+  color: #8C9196;
+  font-weight: 300;
+  flex-shrink: 0;
 }
 
 // Canvas container
@@ -1306,20 +1322,20 @@ export default {
     border-color: #C9CCCF;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
   }
-  
-  // Show action toolbar on hover
-  &:hover .node-actions-toolbar {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
-  }
 }
 
-// Selection state - rounded border frame like Shopify Flow (image 1)
+// Selection state - rounded border frame like Shopify Flow
 :deep(.flow-node.selected) {
   border: 2px solid #202223;
   border-radius: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+// Show action toolbar ONLY when selected (not hover)
+:deep(.flow-node.selected .node-actions-toolbar) {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }
 
 // Node body content - using Polaris inline layout
