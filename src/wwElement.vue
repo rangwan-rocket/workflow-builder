@@ -662,8 +662,8 @@ export default {
         sourceHandle: edge?.source_handle || edge?.sourceHandle || 'output',
         targetHandle: edge?.target_handle || edge?.targetHandle || 'input',
         label: edge?.edge_label || edge?.label || undefined,
-        type: 'smoothstep',
-        animated: false,
+        type: 'default', // bezier curve - smooth S-shape
+        animated: true,
       }));
 
       return { nodes: vfNodes, edges: vfEdges };
@@ -952,6 +952,8 @@ export default {
         target: params.target,
         sourceHandle: params.sourceHandle || 'output',
         targetHandle: params.targetHandle || 'input',
+        type: 'default', // bezier curve
+        animated: true,
       };
 
       edges.value = [...edges.value, newEdge];
