@@ -386,18 +386,20 @@ export default {
       test: markRaw(TestNode),
     };
 
-    // Default edge options - curved, dotted, animated with arrow
+    // Default edge options - light, curved bezier with dotted line and arrow
     const defaultEdgeOptions = {
-      type: 'smoothstep',
+      type: 'default', // bezier curve
       animated: true,
       style: { 
-        stroke: '#8C9196', 
-        strokeWidth: 2,
-        strokeDasharray: '5 5',
+        stroke: '#B5B5B5', 
+        strokeWidth: 1.5,
+        strokeDasharray: '4 4',
       },
       markerEnd: {
         type: 'arrowclosed',
-        color: '#8C9196',
+        color: '#B5B5B5',
+        width: 16,
+        height: 16,
       },
     };
 
@@ -1449,22 +1451,23 @@ export default {
   right: -6px;
 }
 
-// Edge styles - curved, dotted, animated with arrow
+// Edge styles - light, curved bezier with dotted line (like Shopify Flow)
 :deep(.vue-flow__edge-path) {
-  stroke: #8C9196 !important;
-  stroke-width: 2 !important;
-  stroke-dasharray: 6 4 !important;
+  stroke: #B5B5B5 !important;
+  stroke-width: 1.5 !important;
+  stroke-dasharray: 4 4 !important;
   stroke-linecap: round !important;
+  fill: none !important;
 }
 
-// Animated flow effect (left to right)
+// Animated flow effect (subtle)
 :deep(.vue-flow__edge.animated .vue-flow__edge-path) {
-  animation: flow-animation 1.5s linear infinite;
+  animation: flow-animation 2s linear infinite;
 }
 
 @keyframes flow-animation {
   from {
-    stroke-dashoffset: 20;
+    stroke-dashoffset: 16;
   }
   to {
     stroke-dashoffset: 0;
@@ -1473,22 +1476,28 @@ export default {
 
 :deep(.vue-flow__edge.selected .vue-flow__edge-path) {
   stroke: #2C6ECB !important;
-  stroke-width: 2 !important;
+  stroke-width: 1.5 !important;
 }
 
-// Arrow marker styling
+// Arrow marker styling - lighter
 :deep(.vue-flow__arrowhead) {
-  fill: #8C9196;
+  fill: #B5B5B5;
 }
 
 :deep(.vue-flow__edge.selected .vue-flow__arrowhead) {
   fill: #2C6ECB;
 }
 
+:deep(.react-flow__arrowhead polyline),
+:deep(.vue-flow__arrowhead polyline) {
+  stroke: #B5B5B5;
+  fill: #B5B5B5;
+}
+
 // Edge labels
 :deep(.vue-flow__edge-text) {
   font-size: 11px;
-  fill: #6D7175;
+  fill: #8C9196;
   font-weight: 500;
 }
 
