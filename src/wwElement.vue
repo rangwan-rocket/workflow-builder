@@ -147,7 +147,7 @@ const nodeIconMap = {
   test: '🧪',
 };
 
-// Custom Node Components - Shopify Flow style
+// Custom Node Components - Shopify Flow style with LEFT/RIGHT handles
 const ConditionNode = {
   name: 'ConditionNode',
   props: ['id', 'data', 'selected'],
@@ -163,27 +163,25 @@ const ConditionNode = {
           style: { '--node-color': props.data?.color || '#3B82F6' },
         },
         [
-          // Selection frame
-          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h(Handle, { type: 'target', position: Position.Left, id: 'input', class: 'flow-handle flow-handle-left' }),
           h('div', { class: 'node-body' }, [
             h('span', { class: 'node-label' }, props.data?.label || 'Condition'),
             h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#3B82F6' } }, '🔀'),
           ]),
           h(Handle, {
             type: 'source',
-            position: Position.Bottom,
+            position: Position.Right,
             id: 'output-true',
-            class: 'flow-handle flow-handle-bottom',
-            style: { left: '30%' },
+            class: 'flow-handle flow-handle-right',
+            style: { top: '35%' },
           }),
           h(Handle, {
             type: 'source',
-            position: Position.Bottom,
+            position: Position.Right,
             id: 'output-false',
-            class: 'flow-handle flow-handle-bottom',
-            style: { left: '70%' },
+            class: 'flow-handle flow-handle-right',
+            style: { top: '65%' },
           }),
         ]
       );
@@ -205,14 +203,13 @@ const MessageNode = {
           style: { '--node-color': props.data?.color || '#10B981' },
         },
         [
-          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h(Handle, { type: 'target', position: Position.Left, id: 'input', class: 'flow-handle flow-handle-left' }),
           h('div', { class: 'node-body' }, [
             h('span', { class: 'node-label' }, props.data?.label || 'Send Message'),
             h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#10B981' } }, '✉️'),
           ]),
-          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+          h(Handle, { type: 'source', position: Position.Right, id: 'output', class: 'flow-handle flow-handle-right' }),
         ]
       );
   },
@@ -233,14 +230,13 @@ const WaitNode = {
           style: { '--node-color': props.data?.color || '#F59E0B' },
         },
         [
-          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h(Handle, { type: 'target', position: Position.Left, id: 'input', class: 'flow-handle flow-handle-left' }),
           h('div', { class: 'node-body' }, [
             h('span', { class: 'node-label' }, props.data?.label || 'Wait'),
             h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#F59E0B' } }, '⏱️'),
           ]),
-          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+          h(Handle, { type: 'source', position: Position.Right, id: 'output', class: 'flow-handle flow-handle-right' }),
         ]
       );
   },
@@ -261,14 +257,13 @@ const ApiNode = {
           style: { '--node-color': props.data?.color || '#8B5CF6' },
         },
         [
-          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h(Handle, { type: 'target', position: Position.Left, id: 'input', class: 'flow-handle flow-handle-left' }),
           h('div', { class: 'node-body' }, [
             h('span', { class: 'node-label' }, props.data?.label || 'API Call'),
             h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#8B5CF6' } }, '🔌'),
           ]),
-          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+          h(Handle, { type: 'source', position: Position.Right, id: 'output', class: 'flow-handle flow-handle-right' }),
         ]
       );
   },
@@ -290,20 +285,19 @@ const ActionNode = {
           style: { '--node-color': props.data?.color || '#EC4899' },
         },
         [
-          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h(Handle, { type: 'target', position: Position.Left, id: 'input', class: 'flow-handle flow-handle-left' }),
           h('div', { class: 'node-body' }, [
             h('span', { class: 'node-label' }, props.data?.label || 'Action'),
             h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#EC4899' } }, '⚡'),
           ]),
-          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+          h(Handle, { type: 'source', position: Position.Right, id: 'output', class: 'flow-handle flow-handle-right' }),
         ]
       );
   },
 };
 
-// Trigger node (for your database "trigger" type)
+// Trigger node (for your database "trigger" type) - only has output (right side)
 const TriggerNode = {
   name: 'TriggerNode',
   props: ['id', 'data', 'selected'],
@@ -319,14 +313,13 @@ const TriggerNode = {
           style: { '--node-color': props.data?.color || '#6366F1' },
         },
         [
-          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
           h('div', { class: 'node-body' }, [
             h('span', { class: 'node-label' }, props.data?.label || 'Trigger'),
             h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#6366F1' } }, '🎯'),
           ]),
-          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
-          h(Handle, { type: 'source', position: Position.Bottom, id: 'default', class: 'flow-handle flow-handle-bottom' }),
+          h(Handle, { type: 'source', position: Position.Right, id: 'output', class: 'flow-handle flow-handle-right' }),
+          h(Handle, { type: 'source', position: Position.Right, id: 'default', class: 'flow-handle flow-handle-right', style: { top: '70%' } }),
         ]
       );
   },
@@ -347,14 +340,13 @@ const TestNode = {
           style: { '--node-color': '#EC4899' },
         },
         [
-          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h(Handle, { type: 'target', position: Position.Left, id: 'input', class: 'flow-handle flow-handle-left' }),
           h('div', { class: 'node-body' }, [
             h('span', { class: 'node-label' }, 'TEST - ' + (props.data?.label || 'Working!')),
             h('div', { class: 'node-icon-badge', style: { '--badge-color': '#EC4899' } }, '🧪'),
           ]),
-          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+          h(Handle, { type: 'source', position: Position.Right, id: 'output', class: 'flow-handle flow-handle-right' }),
         ]
       );
   },
@@ -394,11 +386,19 @@ export default {
       test: markRaw(TestNode),
     };
 
-    // Default edge options for visible edges
+    // Default edge options - curved, dotted, animated with arrow
     const defaultEdgeOptions = {
       type: 'smoothstep',
-      style: { stroke: '#8C9196', strokeWidth: 2 },
-      animated: false,
+      animated: true,
+      style: { 
+        stroke: '#8C9196', 
+        strokeWidth: 2,
+        strokeDasharray: '5 5',
+      },
+      markerEnd: {
+        type: 'arrowclosed',
+        color: '#8C9196',
+      },
     };
 
     // Node palette configuration - Shopify Flow style with descriptions
@@ -1289,20 +1289,20 @@ export default {
   background: transparent;
 }
 
-// Shopify Flow style nodes - using Polaris card as base
+// Shopify Flow style nodes - with shadow and selection border
 :deep(.flow-node) {
-  background: var(--p-color-bg-surface);
-  border: var(--p-border-width-025) solid var(--p-color-border);
-  border-radius: var(--p-border-radius-300);
-  box-shadow: var(--p-shadow-100);
-  min-width: 200px;
+  background: #FFFFFF;
+  border: 1px solid #E1E3E5;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-width: 180px;
   max-width: 280px;
   transition: all 0.15s ease;
   position: relative;
 
   &:hover {
-    border-color: var(--p-color-border-hover);
-    box-shadow: var(--p-shadow-200);
+    border-color: #C9CCCF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
   }
   
   // Show action toolbar on hover
@@ -1313,21 +1313,11 @@ export default {
   }
 }
 
-// Selection frame (like Shopify Flow) - using Polaris brand color
-:deep(.node-selection-frame) {
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  border: 2px solid var(--p-color-border-interactive);
-  border-radius: calc(var(--p-border-radius-300) + 2px);
-  pointer-events: none;
-  z-index: -1;
-}
-
+// Selection state - rounded border frame like Shopify Flow (image 1)
 :deep(.flow-node.selected) {
-  border-color: var(--p-color-border-interactive);
+  border: 2px solid #202223;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 // Node body content - using Polaris inline layout
@@ -1413,48 +1403,72 @@ export default {
   color: var(--p-color-text-critical);
 }
 
-// Handle styles - using Polaris colors
+// Handle styles - left/right positioning
 :deep(.flow-handle) {
   width: 10px !important;
   height: 10px !important;
-  background: var(--p-color-bg-surface) !important;
-  border: 2px solid var(--p-color-border) !important;
+  background: #FFFFFF !important;
+  border: 2px solid #C9CCCF !important;
   border-radius: 50% !important;
   transition: all 0.15s ease;
 
   &:hover {
-    background: var(--p-color-bg-fill-brand) !important;
-    border-color: var(--p-color-bg-fill-brand) !important;
+    background: #2C6ECB !important;
+    border-color: #2C6ECB !important;
     transform: scale(1.3);
   }
 }
 
-:deep(.flow-handle-top) {
-  top: -5px !important;
+:deep(.flow-handle-left) {
+  left: -6px !important;
 }
 
-:deep(.flow-handle-bottom) {
-  bottom: -5px !important;
+:deep(.flow-handle-right) {
+  right: -6px !important;
 }
 
 :deep(.vue-flow__handle) {
   width: 10px;
   height: 10px;
-  background: var(--p-color-bg-surface);
-  border: 2px solid var(--p-color-border);
+  background: #FFFFFF;
+  border: 2px solid #C9CCCF;
   transition: all 0.15s ease;
 
   &:hover {
-    background: var(--p-color-bg-fill-brand);
-    border-color: var(--p-color-bg-fill-brand);
+    background: #2C6ECB;
+    border-color: #2C6ECB;
     transform: scale(1.3);
   }
 }
 
-// Edge styles - visible gray lines
+:deep(.vue-flow__handle-left) {
+  left: -6px;
+}
+
+:deep(.vue-flow__handle-right) {
+  right: -6px;
+}
+
+// Edge styles - curved, dotted, animated with arrow
 :deep(.vue-flow__edge-path) {
   stroke: #8C9196 !important;
   stroke-width: 2 !important;
+  stroke-dasharray: 6 4 !important;
+  stroke-linecap: round !important;
+}
+
+// Animated flow effect (left to right)
+:deep(.vue-flow__edge.animated .vue-flow__edge-path) {
+  animation: flow-animation 1.5s linear infinite;
+}
+
+@keyframes flow-animation {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 :deep(.vue-flow__edge.selected .vue-flow__edge-path) {
@@ -1462,14 +1476,26 @@ export default {
   stroke-width: 2 !important;
 }
 
+// Arrow marker styling
+:deep(.vue-flow__arrowhead) {
+  fill: #8C9196;
+}
+
+:deep(.vue-flow__edge.selected .vue-flow__arrowhead) {
+  fill: #2C6ECB;
+}
+
 // Edge labels
 :deep(.vue-flow__edge-text) {
   font-size: 11px;
   fill: #6D7175;
+  font-weight: 500;
 }
 
 :deep(.vue-flow__edge-textbg) {
   fill: #F6F6F7;
+  rx: 4;
+  ry: 4;
 }
 
 // Controls styling - using Polaris card style
