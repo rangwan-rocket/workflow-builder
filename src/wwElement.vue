@@ -6,7 +6,6 @@
       class="sidebar"
       :style="sidebarStyle"
     >
-      <div class="sidebar-title">Nodes</div>
       <div class="node-palette">
         <div
           v-for="nodeType in nodeTypes"
@@ -16,8 +15,8 @@
           draggable="true"
           @dragstart="onDragStart($event, nodeType.type)"
         >
-          <span class="node-icon">{{ nodeType.icon }}</span>
           <span class="node-label">{{ nodeType.label }}</span>
+          <span class="node-icon">{{ nodeType.icon }}</span>
         </div>
       </div>
     </div>
@@ -52,7 +51,7 @@
         @keydown="onKeyDown"
         @pane-ready="onPaneReady"
       >
-        <Background :color="gridColorValue" :gap="20" />
+        <Background :color="gridColorValue" :gap="16" />
         <Controls v-if="!isReadOnly" position="bottom-right" />
       </VueFlow>
     </div>
@@ -134,7 +133,18 @@ const createNodeActions = (props, showEdit, showDelete) => {
   return h('div', { class: 'node-actions-toolbar' }, actions);
 };
 
-// Custom Node Components
+// Node icon mapping
+const nodeIconMap = {
+  condition: '🔀',
+  message: '✉️',
+  wait: '⏱️',
+  api: '🔌',
+  action: '⚡',
+  trigger: '🎯',
+  test: '🧪',
+};
+
+// Custom Node Components - Shopify Flow style
 const ConditionNode = {
   name: 'ConditionNode',
   props: ['id', 'data', 'selected'],
@@ -146,27 +156,31 @@ const ConditionNode = {
       h(
         'div',
         {
-          class: ['custom-node', 'condition-node', { selected: props.selected }],
+          class: ['flow-node', 'condition-node', { selected: props.selected }],
           style: { '--node-color': props.data?.color || '#3B82F6' },
         },
         [
+          // Selection frame
+          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
-          h('div', { class: 'node-content' }, [
-            h('span', { class: 'node-icon' }, '🔀'),
-            h('span', { class: 'node-text' }, props.data?.label || 'Condition'),
+          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h('div', { class: 'node-body' }, [
+            h('span', { class: 'node-label' }, props.data?.label || 'Condition'),
+            h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#3B82F6' } }, '🔀'),
           ]),
           h(Handle, {
             type: 'source',
-            position: Position.Right,
+            position: Position.Bottom,
             id: 'output-true',
-            style: { top: '30%' },
+            class: 'flow-handle flow-handle-bottom',
+            style: { left: '30%' },
           }),
           h(Handle, {
             type: 'source',
-            position: Position.Right,
+            position: Position.Bottom,
             id: 'output-false',
-            style: { top: '70%' },
+            class: 'flow-handle flow-handle-bottom',
+            style: { left: '70%' },
           }),
         ]
       );
@@ -184,17 +198,18 @@ const MessageNode = {
       h(
         'div',
         {
-          class: ['custom-node', 'message-node', { selected: props.selected }],
+          class: ['flow-node', 'message-node', { selected: props.selected }],
           style: { '--node-color': props.data?.color || '#10B981' },
         },
         [
+          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
-          h('div', { class: 'node-content' }, [
-            h('span', { class: 'node-icon' }, '✉️'),
-            h('span', { class: 'node-text' }, props.data?.label || 'Send Message'),
+          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h('div', { class: 'node-body' }, [
+            h('span', { class: 'node-label' }, props.data?.label || 'Send Message'),
+            h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#10B981' } }, '✉️'),
           ]),
-          h(Handle, { type: 'source', position: Position.Right, id: 'output' }),
+          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
         ]
       );
   },
@@ -211,17 +226,18 @@ const WaitNode = {
       h(
         'div',
         {
-          class: ['custom-node', 'wait-node', { selected: props.selected }],
+          class: ['flow-node', 'wait-node', { selected: props.selected }],
           style: { '--node-color': props.data?.color || '#F59E0B' },
         },
         [
+          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
-          h('div', { class: 'node-content' }, [
-            h('span', { class: 'node-icon' }, '⏱️'),
-            h('span', { class: 'node-text' }, props.data?.duration || props.data?.label || 'Wait'),
+          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h('div', { class: 'node-body' }, [
+            h('span', { class: 'node-label' }, props.data?.label || 'Wait'),
+            h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#F59E0B' } }, '⏱️'),
           ]),
-          h(Handle, { type: 'source', position: Position.Right, id: 'output' }),
+          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
         ]
       );
   },
@@ -238,17 +254,76 @@ const ApiNode = {
       h(
         'div',
         {
-          class: ['custom-node', 'api-node', { selected: props.selected }],
+          class: ['flow-node', 'api-node', { selected: props.selected }],
           style: { '--node-color': props.data?.color || '#8B5CF6' },
         },
         [
+          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
-          h('div', { class: 'node-content' }, [
-            h('span', { class: 'node-icon' }, '🔌'),
-            h('span', { class: 'node-text' }, props.data?.label || 'API Call'),
+          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h('div', { class: 'node-body' }, [
+            h('span', { class: 'node-label' }, props.data?.label || 'API Call'),
+            h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#8B5CF6' } }, '🔌'),
           ]),
-          h(Handle, { type: 'source', position: Position.Right, id: 'output' }),
+          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+        ]
+      );
+  },
+};
+
+// Action node (for your database "action" type)
+const ActionNode = {
+  name: 'ActionNode',
+  props: ['id', 'data', 'selected'],
+  setup(props) {
+    const showEdit = computed(() => props.data?.showEditAction !== false);
+    const showDelete = computed(() => props.data?.showDeleteAction !== false);
+    
+    return () =>
+      h(
+        'div',
+        {
+          class: ['flow-node', 'action-node', { selected: props.selected }],
+          style: { '--node-color': props.data?.color || '#EC4899' },
+        },
+        [
+          props.selected && h('div', { class: 'node-selection-frame' }),
+          createNodeActions(props, showEdit.value, showDelete.value),
+          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h('div', { class: 'node-body' }, [
+            h('span', { class: 'node-label' }, props.data?.label || 'Action'),
+            h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#EC4899' } }, '⚡'),
+          ]),
+          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+        ]
+      );
+  },
+};
+
+// Trigger node (for your database "trigger" type)
+const TriggerNode = {
+  name: 'TriggerNode',
+  props: ['id', 'data', 'selected'],
+  setup(props) {
+    const showEdit = computed(() => props.data?.showEditAction !== false);
+    const showDelete = computed(() => props.data?.showDeleteAction !== false);
+    
+    return () =>
+      h(
+        'div',
+        {
+          class: ['flow-node', 'trigger-node', { selected: props.selected }],
+          style: { '--node-color': props.data?.color || '#6366F1' },
+        },
+        [
+          props.selected && h('div', { class: 'node-selection-frame' }),
+          createNodeActions(props, showEdit.value, showDelete.value),
+          h('div', { class: 'node-body' }, [
+            h('span', { class: 'node-label' }, props.data?.label || 'Trigger'),
+            h('div', { class: 'node-icon-badge', style: { '--badge-color': props.data?.color || '#6366F1' } }, '🎯'),
+          ]),
+          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
+          h(Handle, { type: 'source', position: Position.Bottom, id: 'default', class: 'flow-handle flow-handle-bottom' }),
         ]
       );
   },
@@ -265,17 +340,18 @@ const TestNode = {
       h(
         'div',
         {
-          class: ['custom-node', 'test-node', { selected: props.selected }],
-          style: { '--node-color': '#EC4899', background: '#FDF2F8', border: '3px dashed #EC4899' },
+          class: ['flow-node', 'test-node', { selected: props.selected }],
+          style: { '--node-color': '#EC4899' },
         },
         [
+          props.selected && h('div', { class: 'node-selection-frame' }),
           createNodeActions(props, showEdit.value, showDelete.value),
-          h(Handle, { type: 'target', position: Position.Left, id: 'input' }),
-          h('div', { class: 'node-content' }, [
-            h('span', { class: 'node-icon' }, '🧪'),
-            h('span', { class: 'node-text', style: { color: '#EC4899', fontWeight: 'bold' } }, 'TEST - ' + (props.data?.label || 'Working!')),
+          h(Handle, { type: 'target', position: Position.Top, id: 'input', class: 'flow-handle flow-handle-top' }),
+          h('div', { class: 'node-body' }, [
+            h('span', { class: 'node-label' }, 'TEST - ' + (props.data?.label || 'Working!')),
+            h('div', { class: 'node-icon-badge', style: { '--badge-color': '#EC4899' } }, '🧪'),
           ]),
-          h(Handle, { type: 'source', position: Position.Right, id: 'output' }),
+          h(Handle, { type: 'source', position: Position.Bottom, id: 'output', class: 'flow-handle flow-handle-bottom' }),
         ]
       );
   },
@@ -310,16 +386,19 @@ export default {
       message: markRaw(MessageNode),
       wait: markRaw(WaitNode),
       api: markRaw(ApiNode),
+      action: markRaw(ActionNode),
+      trigger: markRaw(TriggerNode),
       test: markRaw(TestNode),
     };
 
-    // Node palette configuration
+    // Node palette configuration - Shopify Flow style
     const nodeTypes = [
+      { type: 'trigger', label: 'Trigger', icon: '🎯' },
       { type: 'condition', label: 'Condition', icon: '🔀' },
+      { type: 'action', label: 'Action', icon: '⚡' },
       { type: 'message', label: 'Message', icon: '✉️' },
       { type: 'wait', label: 'Wait', icon: '⏱️' },
       { type: 'api', label: 'API Call', icon: '🔌' },
-      { type: 'test', label: 'TEST NODE', icon: '🧪' },
     ];
 
     // Exposed Variables
@@ -402,7 +481,9 @@ export default {
     // Get node color based on type
     const getNodeColor = (type) => {
       const colors = {
+        trigger: props.content?.triggerNodeColor || '#6366F1',
         condition: props.content?.conditionNodeColor || '#3B82F6',
+        action: props.content?.actionNodeColor || '#EC4899',
         message: props.content?.messageNodeColor || '#10B981',
         wait: props.content?.waitNodeColor || '#F59E0B',
         api: props.content?.apiNodeColor || '#8B5CF6',
@@ -417,10 +498,19 @@ export default {
     // Default data structures for each node type
     const getDefaultNodeData = (type) => {
       const defaults = {
+        trigger: {
+          label: 'New Trigger',
+          event: null,
+        },
         condition: {
           label: 'New Condition',
           groups_operator: 'AND',
           groups: [],
+        },
+        action: {
+          label: 'New Action',
+          action_type: null,
+          message: '',
         },
         message: {
           label: 'New Message',
@@ -520,30 +610,44 @@ export default {
     };
 
     // Data format conversion: Database → Vue Flow
+    // Handles both field formats:
+    // - node_name (DB field) or node_config.label (old format)
+    // - from_node_id/to_node_id (DB fields) or source/target (Vue Flow format)
     const dbToVueFlow = (dbNodes, dbEdges) => {
-      const vfNodes = (dbNodes || []).map((node) => ({
-        id: node?.id || crypto.randomUUID(),
-        type: node?.node_type || 'message',
-        position: {
-          x: Number(node?.position_x) || 100,
-          y: Number(node?.position_y) || 100,
-        },
-        data: {
-          ...(node?.node_config || {}),
-          color: getNodeColor(node?.node_type || 'message'),
-          showEditAction: showEditAction.value,
-          showDeleteAction: showDeleteAction.value,
-          onEdit: handleNodeEdit,
-          onDelete: handleNodeDelete,
-        },
-      }));
+      const vfNodes = (dbNodes || []).map((node) => {
+        const nodeType = node?.node_type || 'message';
+        // Get label from node_name (DB) or node_config.label (fallback)
+        const label = node?.node_name || node?.node_config?.label || `New ${nodeType}`;
+        
+        return {
+          id: node?.id || crypto.randomUUID(),
+          type: nodeType,
+          position: {
+            x: Number(node?.position_x) || 100,
+            y: Number(node?.position_y) || 100,
+          },
+          data: {
+            label,
+            ...(node?.node_config || {}),
+            color: getNodeColor(nodeType),
+            showEditAction: showEditAction.value,
+            showDeleteAction: showDeleteAction.value,
+            onEdit: handleNodeEdit,
+            onDelete: handleNodeDelete,
+          },
+        };
+      });
 
       const vfEdges = (dbEdges || []).map((edge) => ({
         id: edge?.id || crypto.randomUUID(),
-        source: edge?.source || '',
-        target: edge?.target || '',
-        sourceHandle: edge?.sourceHandle || edge?.source_handle || 'output',
-        targetHandle: edge?.targetHandle || edge?.target_handle || 'input',
+        // Handle both DB format (from_node_id/to_node_id) and Vue Flow format (source/target)
+        source: edge?.from_node_id || edge?.source || '',
+        target: edge?.to_node_id || edge?.target || '',
+        sourceHandle: edge?.source_handle || edge?.sourceHandle || 'output',
+        targetHandle: edge?.target_handle || edge?.targetHandle || 'input',
+        label: edge?.edge_label || edge?.label || undefined,
+        type: 'smoothstep',
+        animated: false,
       }));
 
       return { nodes: vfNodes, edges: vfEdges };
@@ -551,24 +655,31 @@ export default {
 
     // Data format conversion: Vue Flow → Database
     const vueFlowToDb = (vfNodes, vfEdges) => {
-      const dbNodes = (vfNodes || []).map((node) => ({
-        id: node?.id,
-        node_type: node?.type,
-        position_x: node?.position?.x || 0,
-        position_y: node?.position?.y || 0,
-        node_config: {
-          label: node?.data?.label,
-          ...Object.fromEntries(
-            Object.entries(node?.data || {}).filter(([key]) => key !== 'color')
-          ),
-        },
-      }));
+      const dbNodes = (vfNodes || []).map((node) => {
+        // Extract clean config without internal fields
+        const cleanData = { ...node?.data };
+        delete cleanData.color;
+        delete cleanData.showEditAction;
+        delete cleanData.showDeleteAction;
+        delete cleanData.onEdit;
+        delete cleanData.onDelete;
+        
+        return {
+          id: node?.id,
+          node_type: node?.type,
+          node_name: node?.data?.label || `New ${node?.type}`,
+          position_x: node?.position?.x || 0,
+          position_y: node?.position?.y || 0,
+          node_config: cleanData,
+        };
+      });
 
       const dbEdges = (vfEdges || []).map((edge) => ({
         id: edge?.id,
-        source: edge?.source,
-        target: edge?.target,
-        sourceHandle: edge?.sourceHandle || 'output',
+        from_node_id: edge?.source,
+        to_node_id: edge?.target,
+        source_handle: edge?.sourceHandle || 'output',
+        edge_label: edge?.label || null,
       }));
 
       return { nodes: dbNodes, edges: dbEdges };
@@ -1057,74 +1168,67 @@ export default {
 .workflow-builder {
   @include polaris-tokens;
   display: grid !important;
-  grid-template-columns: 160px 1fr;
+  grid-template-columns: auto 1fr;
+  gap: 0;
   width: 100%;
-  height: 500px;
+  height: 100%;
   min-height: 500px;
   overflow: hidden;
   font-family: var(--p-font-family-sans);
+  background: var(--p-color-bg-surface-secondary);
 }
 
-// Sidebar using Polaris card subdued style
+// Sidebar - using Polaris card subdued
 .sidebar {
   @include polaris-card-subdued;
   grid-column: 1;
+  padding: var(--p-space-300); // 10px equivalent
   border-radius: 0;
   border-right: var(--p-border-width-025) solid var(--p-color-border);
   display: flex;
   flex-direction: column;
-  gap: var(--p-space-400);
   overflow-y: auto;
 }
 
-// Sidebar title using Polaris text style
-.sidebar-title {
-  @include polaris-text-heading-sm;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--p-color-text-secondary);
-}
-
-// Node palette layout
+// Node palette layout - using Polaris block stack
 .node-palette {
   @include polaris-block-stack;
-  gap: var(--p-space-300);
+  gap: var(--p-space-200);
 }
 
-// Palette nodes - custom styling with Polaris variables
-// (can't use polaris-button because each needs unique border color)
+// Palette nodes - Shopify Flow style (custom, can't use polaris-button)
 .palette-node {
+  @include polaris-card;
   display: flex;
   align-items: center;
-  gap: var(--p-space-200);
-  padding: var(--p-space-300);
-  background: var(--p-color-bg-surface);
-  border: 2px solid var(--node-color);
-  border-radius: var(--p-border-radius-200);
+  justify-content: space-between;
+  gap: var(--p-space-300);
+  padding: var(--p-space-300) var(--p-space-400);
   cursor: grab;
-  transition: all 0.2s ease;
-  font-size: var(--p-font-size-325);
-  font-weight: var(--p-font-weight-medium);
-  color: var(--p-color-text);
+  transition: all 0.15s ease;
+  min-width: 180px;
 
   &:hover {
-    background: color-mix(in srgb, var(--node-color) 10%, white);
-    transform: translateY(-2px);
-    box-shadow: var(--p-shadow-300);
+    background: var(--p-color-bg-surface-hover);
+    box-shadow: var(--p-shadow-100);
   }
 
   &:active {
     cursor: grabbing;
-    transform: translateY(0);
+    background: var(--p-color-bg-surface-active);
   }
 }
 
-.node-icon {
-  font-size: 18px;
+.node-label {
+  @include polaris-text-body;
+  flex: 1;
+  font-weight: var(--p-font-weight-semibold);
+  color: var(--p-color-text);
 }
 
-.node-label {
-  flex: 1;
+.node-icon {
+  font-size: 16px;
+  opacity: 0.7;
 }
 
 // Canvas container
@@ -1134,11 +1238,12 @@ export default {
   height: 100%;
   position: relative;
   overflow: hidden;
-  background: var(--p-color-bg);
+  background: var(--p-color-bg-surface-secondary);
 }
 
 // ============================================
-// Vue Flow specific styles (local, not Polaris)
+// Vue Flow specific styles - Shopify Flow design
+// Using Polaris variables where possible
 // ============================================
 
 :deep(.vue-flow) {
@@ -1152,24 +1257,20 @@ export default {
   background: transparent;
 }
 
-// Custom node styles
-:deep(.custom-node) {
-  padding: 12px 16px;
-  border-radius: var(--p-border-radius-200);
+// Shopify Flow style nodes - using Polaris card as base
+:deep(.flow-node) {
   background: var(--p-color-bg-surface);
-  border: 2px solid var(--node-color);
-  box-shadow: var(--p-shadow-200);
-  min-width: 140px;
-  transition: all 0.2s ease;
+  border: var(--p-border-width-025) solid var(--p-color-border);
+  border-radius: var(--p-border-radius-300);
+  box-shadow: var(--p-shadow-100);
+  min-width: 200px;
+  max-width: 280px;
+  transition: all 0.15s ease;
   position: relative;
 
-  &.selected {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-color) 30%, transparent),
-      var(--p-shadow-300);
-  }
-
   &:hover {
-    box-shadow: var(--p-shadow-300);
+    border-color: var(--p-color-border-hover);
+    box-shadow: var(--p-shadow-200);
   }
   
   // Show action toolbar on hover
@@ -1180,25 +1281,73 @@ export default {
   }
 }
 
-// Node actions toolbar (appears on hover)
+// Selection frame (like Shopify Flow) - using Polaris brand color
+:deep(.node-selection-frame) {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid var(--p-color-border-interactive);
+  border-radius: calc(var(--p-border-radius-300) + 2px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+:deep(.flow-node.selected) {
+  border-color: var(--p-color-border-interactive);
+}
+
+// Node body content - using Polaris inline layout
+:deep(.node-body) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-space-300);
+  padding: var(--p-space-400);
+}
+
+:deep(.node-label) {
+  font-size: var(--p-font-size-325);
+  font-weight: var(--p-font-weight-semibold);
+  color: var(--p-color-text);
+  line-height: var(--p-font-line-height-400);
+  flex: 1;
+}
+
+// Icon badge (positioned on right like Shopify Flow)
+:deep(.node-icon-badge) {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--badge-color, var(--p-color-bg-fill-brand)) 15%, white);
+  border-radius: var(--p-border-radius-200);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+// Node actions toolbar (appears on hover) - using Polaris card style
 :deep(.node-actions-toolbar) {
   position: absolute;
-  top: -36px;
+  top: -40px;
   left: 50%;
   transform: translateX(-50%) translateY(4px);
   display: flex;
-  gap: 4px;
+  gap: var(--p-space-100);
   background: var(--p-color-bg-surface);
-  border: 1px solid var(--p-color-border);
+  border: var(--p-border-width-025) solid var(--p-color-border);
   border-radius: var(--p-border-radius-200);
-  padding: 4px;
-  box-shadow: var(--p-shadow-300);
+  padding: var(--p-space-100);
+  box-shadow: var(--p-shadow-400);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease, transform 0.15s ease;
   z-index: 10;
 }
 
+// Action buttons - using Polaris button plain style as base
 :deep(.node-action-btn) {
   display: flex;
   align-items: center;
@@ -1223,74 +1372,72 @@ export default {
 }
 
 :deep(.node-action-edit:hover) {
-  background: color-mix(in srgb, #3B82F6 15%, transparent);
-  color: #3B82F6;
+  background: var(--p-color-bg-fill-info-secondary);
+  color: var(--p-color-text-info);
 }
 
 :deep(.node-action-delete:hover) {
-  background: color-mix(in srgb, #EF4444 15%, transparent);
-  color: #EF4444;
+  background: var(--p-color-bg-fill-critical-secondary);
+  color: var(--p-color-text-critical);
 }
 
-:deep(.node-content) {
-  display: flex;
-  align-items: center;
-  gap: var(--p-space-200);
-}
-
-:deep(.node-icon) {
-  font-size: 18px;
-}
-
-:deep(.node-text) {
-  font-size: var(--p-font-size-325);
-  font-weight: var(--p-font-weight-medium);
-  color: var(--p-color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
-}
-
-// Handle styles
-:deep(.vue-flow__handle) {
-  width: 12px;
-  height: 12px;
-  background: var(--p-color-bg-surface);
-  border: 2px solid var(--p-color-border);
-  transition: all 0.2s ease;
+// Handle styles - using Polaris colors
+:deep(.flow-handle) {
+  width: 10px !important;
+  height: 10px !important;
+  background: var(--p-color-bg-surface) !important;
+  border: 2px solid var(--p-color-border) !important;
+  border-radius: 50% !important;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: var(--node-color, var(--p-color-bg-fill-brand));
-    border-color: var(--node-color, var(--p-color-bg-fill-brand));
-    transform: scale(1.2);
+    background: var(--p-color-bg-fill-brand) !important;
+    border-color: var(--p-color-bg-fill-brand) !important;
+    transform: scale(1.3);
   }
 }
 
-:deep(.vue-flow__handle-left) {
-  left: -6px;
+:deep(.flow-handle-top) {
+  top: -5px !important;
 }
 
-:deep(.vue-flow__handle-right) {
-  right: -6px;
+:deep(.flow-handle-bottom) {
+  bottom: -5px !important;
 }
 
-// Edge styles
+:deep(.vue-flow__handle) {
+  width: 10px;
+  height: 10px;
+  background: var(--p-color-bg-surface);
+  border: 2px solid var(--p-color-border);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--p-color-bg-fill-brand);
+    border-color: var(--p-color-bg-fill-brand);
+    transform: scale(1.3);
+  }
+}
+
+// Edge styles - Shopify Flow style (dashed gray)
 :deep(.vue-flow__edge-path) {
-  stroke: var(--p-color-border);
+  stroke: var(--p-color-border-secondary);
   stroke-width: 2;
+  stroke-dasharray: 5 5;
 }
 
 :deep(.vue-flow__edge.selected .vue-flow__edge-path) {
-  stroke: var(--p-color-bg-fill-brand);
-  stroke-width: 3;
+  stroke: var(--p-color-border-interactive);
+  stroke-width: 2;
+  stroke-dasharray: none;
 }
 
-// Controls styling
+// Controls styling - using Polaris card style
 :deep(.vue-flow__controls) {
   box-shadow: var(--p-shadow-200);
   border-radius: var(--p-border-radius-200);
   overflow: hidden;
+  border: var(--p-border-width-025) solid var(--p-color-border);
 }
 
 :deep(.vue-flow__controls-button) {
@@ -1298,10 +1445,17 @@ export default {
   border: none;
   width: 32px;
   height: 32px;
+  color: var(--p-color-text-secondary);
 
   &:hover {
     background: var(--p-color-bg-surface-hover);
+    color: var(--p-color-text);
   }
+}
+
+// Background pattern
+:deep(.vue-flow__background) {
+  background: var(--p-color-bg-surface-secondary);
 }
 
 // Responsive
@@ -1309,5 +1463,10 @@ export default {
   .sidebar {
     display: none;
   }
+  
+  .workflow-builder {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
+
