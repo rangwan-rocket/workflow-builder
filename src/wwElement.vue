@@ -417,13 +417,16 @@ export default {
       { type: 'api', label: 'API Call', icon: '🔌', description: 'Send HTTP request to service' },
     ];
 
+    // Workflow metadata from props
+    const workflowMeta = ref({});
+
     // Exposed Variables
     const { value: workflowData, setValue: setWorkflowData } =
       wwLib.wwVariable.useComponentVariable({
         uid: props.uid,
         name: 'workflowData',
         type: 'object',
-        defaultValue: { nodes: [], edges: [] },
+        defaultValue: { p_workflow: {}, p_nodes: [], p_edges: [] },
       });
 
     const { value: isDirty, setValue: setIsDirty } =
@@ -701,16 +704,47 @@ export default {
       return { nodes: dbNodes, edges: dbEdges };
     };
 
-    // Update exposed variables
+    // Update exposed variables with full API payload structure
     const updateVariables = () => {
       const currentNodes = nodes.value || [];
       const currentEdges = edges.value || [];
 
       setNodeCount(currentNodes.length);
       setEdgeCount(currentEdges.length);
+
+      // Build p_nodes in database format
+      const p_nodes = currentNodes.map((node) => {
+        const cleanData = { ...node?.data };
+        delete cleanData.color;
+        delete cleanData.showEditAction;
+        delete cleanData.showDeleteAction;
+        delete cleanData.onEdit;
+        delete cleanData.onDelete;
+        
+        return {
+          id: node?.id,
+          node_type: node?.type,
+          node_name: node?.data?.label || `New ${node?.type}`,
+          position_x: Math.round(node?.position?.x || 0),
+          position_y: Math.round(node?.position?.y || 0),
+          node_config: cleanData,
+        };
+      });
+
+      // Build p_edges in database format
+      const p_edges = currentEdges.map((edge) => ({
+        id: edge?.id,
+        from_node_id: edge?.source,
+        to_node_id: edge?.target,
+        source_handle: edge?.sourceHandle || 'output',
+        edge_label: edge?.label || null,
+      }));
+
+      // Set full workflow data for API
       setWorkflowData({
-        nodes: currentNodes,
-        edges: currentEdges,
+        p_workflow: workflowMeta.value || {},
+        p_nodes,
+        p_edges,
       });
     };
 
@@ -756,7 +790,7 @@ export default {
       return { valid: errors.length === 0, errors };
     };
 
-    // Save action
+    // Save action - returns full payload for upsert API
     const save = () => {
       const validation = validate();
 
@@ -764,19 +798,50 @@ export default {
         return { valid: false, errors: validation.errors };
       }
 
-      const { nodes: dbNodes, edges: dbEdges } = vueFlowToDb(
-        nodes.value,
-        edges.value
-      );
+      // Build p_nodes in database format
+      const p_nodes = nodes.value.map((node) => {
+        const cleanData = { ...node?.data };
+        delete cleanData.color;
+        delete cleanData.showEditAction;
+        delete cleanData.showDeleteAction;
+        delete cleanData.onEdit;
+        delete cleanData.onDelete;
+        
+        return {
+          id: node?.id,
+          node_type: node?.type,
+          node_name: node?.data?.label || `New ${node?.type}`,
+          position_x: Math.round(node?.position?.x || 0),
+          position_y: Math.round(node?.position?.y || 0),
+          node_config: cleanData,
+        };
+      });
+
+      // Build p_edges in database format
+      const p_edges = edges.value.map((edge) => ({
+        id: edge?.id,
+        from_node_id: edge?.source,
+        to_node_id: edge?.target,
+        source_handle: edge?.sourceHandle || 'output',
+        edge_label: edge?.label || null,
+      }));
+
+      // Full payload for API
+      const payload = {
+        p_workflow: workflowMeta.value || {},
+        p_nodes,
+        p_edges,
+      };
 
       setIsDirty(false);
+      updateVariables();
 
       emit('trigger-event', {
         name: 'workflow-saved',
-        event: { nodes: dbNodes, edges: dbEdges },
+        event: payload,
       });
 
-      return { nodes: dbNodes, edges: dbEdges };
+      return payload;
     };
 
     // Clear action
@@ -1053,6 +1118,18 @@ export default {
         }
       }
     };
+
+    // Watch for workflow metadata changes
+    watch(
+      () => props.content?.initialWorkflow,
+      (newWorkflow) => {
+        if (newWorkflow && typeof newWorkflow === 'object') {
+          workflowMeta.value = { ...newWorkflow };
+          updateVariables();
+        }
+      },
+      { immediate: true, deep: true }
+    );
 
     // Watch for initial data changes
     watch(

@@ -12,7 +12,7 @@ export default {
       action: 'save',
       /* wwEditor:start */
       actionDescription: {
-        en: 'Returns {nodes, edges} for saving to database',
+        en: 'Validates and returns full workflow payload {p_workflow, p_nodes, p_edges} for upsert API',
       },
       /* wwEditor:end */
     },
@@ -43,24 +43,20 @@ export default {
       args: [
         {
           name: 'nodeId',
-          type: 'Text',
           label: { en: 'Node ID' },
-          /* wwEditor:start */
-          bindable: true,
-          /* wwEditor:end */
+          type: 'Text',
+          required: true,
         },
         {
           name: 'config',
-          type: 'Object',
           label: { en: 'Config Data' },
-          /* wwEditor:start */
-          bindable: true,
-          /* wwEditor:end */
+          type: 'Object',
+          required: true,
         },
       ],
       /* wwEditor:start */
       actionDescription: {
-        en: 'Updates the configuration of a specific node. Pass nodeId and config object.',
+        en: 'Updates the config data for a specific node by ID',
       },
       /* wwEditor:end */
     },
@@ -69,10 +65,10 @@ export default {
     {
       name: 'workflow-saved',
       label: { en: 'On Workflow Saved' },
-      event: { nodes: [], edges: [] },
+      event: { p_workflow: {}, p_nodes: [], p_edges: [] },
       default: true,
       /* wwEditor:start */
-      getTestEvent: '() => ({ nodes: [{id: "test", node_type: "message"}], edges: [] })',
+      getTestEvent: '() => ({ p_workflow: {id: "test"}, p_nodes: [{id: "n1", node_type: "message"}], p_edges: [] })',
       /* wwEditor:end */
     },
     {
@@ -81,7 +77,25 @@ export default {
       event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
       default: true,
       /* wwEditor:start */
-      getTestEvent: '() => ({ id: "node-123", type: "message", position: { x: 100, y: 100 }, data: { label: "Test Message", channel: null, template_id: null, subject: "", content: "", json_content: null } })',
+      getTestEvent: '() => ({ id: "node-123", type: "message", position: { x: 100, y: 100 }, data: { label: "Test Node" } })',
+      /* wwEditor:end */
+    },
+    {
+      name: 'node-edit',
+      label: { en: 'On Node Edit' },
+      event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
+      default: true,
+      /* wwEditor:start */
+      getTestEvent: '() => ({ id: "node-123", type: "condition", position: { x: 100, y: 100 }, data: { label: "Edit Node" } })',
+      /* wwEditor:end */
+    },
+    {
+      name: 'node-deleted',
+      label: { en: 'On Node Deleted' },
+      event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
+      default: true,
+      /* wwEditor:start */
+      getTestEvent: '() => ({ id: "node-123", type: "message", position: { x: 100, y: 100 }, data: { label: "Deleted Node" } })',
       /* wwEditor:end */
     },
     {
@@ -102,27 +116,24 @@ export default {
       getTestEvent: '() => ({ errors: ["No nodes in workflow"] })',
       /* wwEditor:end */
     },
-    {
-      name: 'node-edit',
-      label: { en: 'On Node Edit' },
-      event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
-      default: true,
-      /* wwEditor:start */
-      getTestEvent: '() => ({ id: "node-123", type: "condition", position: { x: 100, y: 100 }, data: { label: "Check VIP", groups_operator: "AND", groups: [] } })',
-      /* wwEditor:end */
-    },
-    {
-      name: 'node-deleted',
-      label: { en: 'On Node Deleted' },
-      event: { id: '', type: '', position: { x: 0, y: 0 }, data: {} },
-      default: true,
-      /* wwEditor:start */
-      getTestEvent: '() => ({ id: "node-123", type: "message", position: { x: 100, y: 100 }, data: { label: "Deleted Node" } })',
-      /* wwEditor:end */
-    },
   ],
   properties: {
     // Data Binding
+    initialWorkflow: {
+      label: { en: 'Workflow Data' },
+      type: 'Object',
+      section: 'settings',
+      bindable: true,
+      defaultValue: {},
+      /* wwEditor:start */
+      bindingValidation: {
+        type: 'object',
+        tooltip: 'Workflow metadata object (id, merchant_id, name, description, is_active, etc.)',
+      },
+      propertyHelp:
+        'Bind to workflow record. Used to build the p_workflow payload for upsert API.',
+      /* wwEditor:end */
+    },
     initialNodes: {
       label: { en: 'Initial Nodes' },
       type: 'Array',
@@ -266,7 +277,7 @@ export default {
       /* wwEditor:end */
     },
     showEditAction: {
-      label: { en: 'Show Edit Action' },
+      label: { en: 'Show Edit Button' },
       type: 'OnOff',
       section: 'settings',
       defaultValue: true,
@@ -275,13 +286,12 @@ export default {
       /* wwEditor:start */
       bindingValidation: {
         type: 'boolean',
-        tooltip: 'Show edit button on nodes',
+        tooltip: 'Show edit button on selected nodes',
       },
-      propertyHelp: 'Show edit button when hovering over nodes. Triggers "On Node Edit" event.',
       /* wwEditor:end */
     },
     showDeleteAction: {
-      label: { en: 'Show Delete Action' },
+      label: { en: 'Show Delete Button' },
       type: 'OnOff',
       section: 'settings',
       defaultValue: true,
@@ -290,9 +300,8 @@ export default {
       /* wwEditor:start */
       bindingValidation: {
         type: 'boolean',
-        tooltip: 'Show delete button on nodes',
+        tooltip: 'Show delete button on selected nodes',
       },
-      propertyHelp: 'Show delete button when hovering over nodes. Triggers "On Node Deleted" event.',
       /* wwEditor:end */
     },
 
